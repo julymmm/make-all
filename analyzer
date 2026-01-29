@@ -1,0 +1,24 @@
+all:
+	cd ../../data && mkdir -p train_full test_full
+
+	# 正常行为 → 训练 sketch
+	for f in ../../data/full_data/base_train/*.txt ; do \
+		id=$$(basename $$f | sed 's/[^0-9]//g') ; \
+		bin/unicorn/main filetype edgelist \
+		  base $$f \
+		  stream ../../data/full_data/stream_train/stream-normal-$$id.txt \
+		  decay 500 lambda 0.02 batch 2000 \
+		  sketch ../../data/train_full/sketch-normal-$$id.txt \
+		  chunkify 1 chunk_size 50 ; \
+	done
+
+	# 攻击行为 → 测试 sketch
+	for f in ../../data/full_data/base_test/*.txt ; do \
+		id=$$(basename $$f | sed 's/[^0-9]//g') ; \
+		bin/unicorn/main filetype edgelist \
+		  base $$f \
+		  stream ../../data/full_data/stream_test/stream-attack-$$id.txt \
+		  decay 500 lambda 0.02 batch 2000 \
+		  sketch ../../data/test_full/sketch-attack-$$id.txt \
+		  chunkify 1 chunk_size 50 ; \
+	done
