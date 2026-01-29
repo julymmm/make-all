@@ -1,0 +1,33 @@
+all:
+	cd ../../data && mkdir -p full_data
+	cd ../../data/full_data && mkdir -p base_train stream_train base_test stream_test
+
+	test -f venv/bin/activate || virtualenv -p $(shell which python) venv
+	. venv/bin/activate ; \
+		pip install tqdm pandas ; \
+
+	# 正常行为（训练）
+	number=0 ; while [ $$number -le 299 ] ; do \
+		python streamspot/parse_fast.py -g $$number -a \
+		  -i ../../data/all.tsv \
+		  -b ../../data/full_data/base_train/base-normal-$$number.txt \
+		  -S ../../data/full_data/stream_train/stream-normal-$$number.txt ; \
+		number=`expr $$number + 1` ; \
+	done ; \
+
+	number=400 ; while [ $$number -le 599 ] ; do \
+		python streamspot/parse_fast.py -g $$number -a \
+		  -i ../../data/all.tsv \
+		  -b ../../data/full_data/base_train/base-normal-$$number.txt \
+		  -S ../../data/full_data/stream_train/stream-normal-$$number.txt ; \
+		number=`expr $$number + 1` ; \
+	done ; \
+
+	# 攻击行为（测试）
+	number=300 ; while [ $$number -le 399 ] ; do \
+		python streamspot/parse_fast.py -g $$number -a \
+		  -i ../../data/all.tsv \
+		  -b ../../data/full_data/base_test/base-attack-$$number.txt \
+		  -S ../../data/full_data/stream_test/stream-attack-$$number.txt ; \
+		number=`expr $$number + 1` ; \
+	done
